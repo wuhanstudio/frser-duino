@@ -1,7 +1,7 @@
 /*
- * This file is part of the frser-duino project.
+ * This file is part of the libfrser project.
  *
- * Copyright (C) 2010 Urja Rannikko <urjaman@gmail.com>
+ * Copyright (C) 2009 Urja Rannikko <urjaman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +18,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-/* GENERIC DEFINITIONS FOR PROJECT */
-#define F_CPU 16000000UL
-#include <util/delay.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/sleep.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <avr/power.h>
-#include <avr/sleep.h>
-#include <util/delay.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-#include <alloca.h>
-#include <inttypes.h>
-#include <setjmp.h>
+#include <Arduino.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void udelay(uint32_t usecs) {
+    delayMicroseconds(usecs);
+}
+
+#ifdef __cplusplus
+}
+#endif

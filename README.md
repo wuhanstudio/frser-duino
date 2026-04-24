@@ -1,61 +1,39 @@
-frser-duino
-===========
+# Arduino Serprog
 
-Alternative code to serprog-duino.  
-We're in process of melding all the good bits of
-serprog-duino into frser-duino and deprecating serprog-duino.
+> This firmware implements a Serial Flasher Protocol v1 using an Arduino framework.
 
-Available targets (same as with serprog-duino):
+```
+flashrom.exe -p serprog:dev=COM7:115200 -V
+```
 
-* ftdi, flash-ftdi:  
-	For the Arduinos with an FTDI  
-	compatible flashrom arguments: flashrom -p serprog:dev=/dev/ttyUSB0:2000000  
-	Other boards using an hardware USB<->Serial converter might work too.
+| Signal   | Arduino Uno Pin | SPI Flash Pin | Notes                    |
+| -------- | --------------- | ------------- | ------------------------ |
+| **MOSI** | D11             | DI / SI       | Master Out → Slave In    |
+| **MISO** | D12             | DO / SO       | Master In ← Slave Out    |
+| **SCK**  | D13             | CLK / SCLK    | SPI clock                |
+| **CS**   | D10             | CS           | Chip select (active LOW) |
+| **GND**  | GND             | GND           | Ground reference         |
+| **VCC**  | 3.3V ⚠️         | VCC           | Must match flash voltage |
 
-* u2, flash-u2:  
-	For the Arduino with a 8u2 or a 16u2  
-	compatible flashrom arguments: flashrom -p serprog:dev=/dev/ttyACM0:115200  
+| Signal   | STM32F103C8 Pin | SPI Flash Pin | Notes                    |
+| -------- | --------------- | ------------- | ------------------------ |
+| **MOSI** | PA7             | DI / SI       | Master Out → Slave In    |
+| **MISO** | PA6             | DO / SO       | Master In ← Slave Out    |
+| **SCK**  | PA5             | CLK / SCLK    | SPI clock                |
+| **CS**   | PA4             | CS            | Chip select (active LOW) |
+| **GND**  | GND             | GND           | Ground reference         |
+| **VCC**  | 3.3V ⚠️         | VCC           | Must match flash voltage |
 
-Traditional targets:  
-make - builds  
-make program - "flashes"  
+| Signal   | ESP32 Pin | SPI Flash Pin | Notes                    |
+| -------- | --------- | ------------- | ------------------------ |
+| **MOSI** | GPIO 23   | DI / SI       | Master Out → Slave In    |
+| **MISO** | GPIO 19   | DO / SO       | Master In ← Slave Out    |
+| **SCK**  | GPIO 18   | CLK / SCLK    | SPI clock                |
+| **CS**   | GPIO 5    | CS            | Chip select (active LOW) |
+| **GND**  | GND       | GND           | Ground reference         |
+| **VCC**  | 3.3V ⚠️   | VCC           | Must match flash voltage |
 
-These are by default effectively synonyms for u2 and flash-u2,
-except that "make" doesnt clean out the previous build if it sees no changes.
-You can change what the traditional targets do by either changing the defines
-at the beginning of the makefile, or using environment variables - for example:  
-`BLBAUD=115200 SERIAL_DEV=/dev/ttyUSB1 make program`
+## References
 
-
-Note: the repository has a submodule, clone with --recursive.
-
-
-### About the various (broken) usb-serial converters
-
-- Arduino Uno with ATMega 8U2/16U2: their default firmware is quite broken,  
-	but the default settings works around it at 115200 (slowly).
-
-	If you're willing to test, I have an alternative firmware for it:  
-	https://github.com/urjaman/fast-usbserial  
-	with that firmware you should be able to use it as if it was an FTDI,
-	meaning with make ftdi and at 2Mbaud. This means that for this case
-	it would be valid to say `make ftdi; make flash-u2`. The flash targets
-	dont check what kind of binary they're flashing.  
-	(Note: My benchmarks say it is still slower than the FTDI.)
-
-
-- A "VISduino" named Uno R3 clone with with a CH340G:  
-	It is a cheap usb-serial converter chip, and if it
-	in general works on your computer (google had reports of it not
-	working with all usb chipsets) you can treat it like an FTDI
-	with a maximum baudrate of 115200. Claims 2Mbaud but apparently
-	doesnt have big enough buffers for operation at that speed.  
-	Commands would be (if you dont touch the defaults in Makefile):  
-	`DFLAGS=-DFTDI make clean all` and `SERIAL_DEV=/dev/ttyUSB0 make program`
-
-### Using an Arduino and an external usb-serial converter
-
-If you have an Arduino without a FTDI chip, but you are lucky enough to have an
-extra usb-serial converter laying around, you can use it to speed up the flashing.
-Just connect the usb-serial converter with the RX(Pin 0), TX(Pin 1) and GND pins
-on your Arduino and use the instructions for the `ftdi` target from above.
+- Serial Flasher Protocol v1: https://www.flashrom.org/supported_hw/supported_prog/serprog/serprog-protocol.html
+- Original implementation only supports AVR devices: https://github.com/urjaman/frser-duino

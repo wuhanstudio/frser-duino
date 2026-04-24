@@ -18,26 +18,44 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#include <stdint.h>
+#include <Arduino.h>
+
+#define BAUD 115200
+
+// Generic Arduino
+#define Console Serial
+
+// STM32
+// #define Console Serial1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* UART MODULE HEADER */
-uint8_t uart_isdata(void);
 uint8_t uart_recv(void);
 void uart_send(uint8_t val);
-void uart_init(void);
-void uart_wait_txdone(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* We assume to other half to be perfect.... */
 #define BAUD_TOL 3
 
 #define RECEIVE() uart_recv()
 #define SEND(n) uart_send(n)
+
 #if (defined RAMEND)&&(defined RAMSTART)
-#define RAM_BYTES_ (RAMEND-RAMSTART+1)
-/* SPI only doesnt have opbuf, so can have bigger uart buf than others... */
-#define UART_BUFLEN (RAM_BYTES_/2)
+  #define RAM_BYTES_ (RAMEND-RAMSTART+1)
+  /* SPI only doesnt have opbuf, so can have bigger uart buf than others... */
+  #define UART_BUFLEN (RAM_BYTES_/2)
 #else
-/* Cheeseballs.... whatever, something that'll run. */
-#define UART_BUFLEN 256
+  /* Cheeseballs.... whatever, something that'll run. */
+  #define UART_BUFLEN 256
 #endif
+
 /* Compat; Int Tx support was stripped. */
 #define UART_POLLED_TX
 #define UARTTX_BUFLEN 0
